@@ -1,0 +1,13 @@
+modLoader="javafml"
+loaderVersion="[36,37)"
+license="MIT"
+
+[[mods]]
+modId="sshinyname"
+version="${file(projectDir.path)}/build.gradle" // o pon "1.0.0"
+displayName="SSHiny Name Color"
+description='''
+Mod que colorea de dorado el nombre de las paletas listadas en config/SuperShiny/config.yml.
+Autor: platanov3rde
+'''
+

@@ -1,0 +1,88 @@
+plugins {
+    id 'eclipse'
+    id 'maven-publish'
+    id 'net.minecraftforge.gradle.forge' version '5.1.+'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'java'
+}
+
+group = 'com.platanov3rde.supershiny'
+version = '1.0.0'
+archivesBaseName = 'Supershiny'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+
+sourceSets {
+    main {
+        resources {
+            // si generas recursos en build, añade aquí la carpeta
+            srcDir 'src/generated/resources'
+        }
+    }
+}
+
+minecraft {
+    // Forge y Minecraft
+    version = "1.16.5-36.2.39"
+    mappings channel: 'official', version: '1.16.5'
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+        }
+        server {
+            workingDirectory project.file('run')
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    // repositorios adicionales si los necesitas...
+    flatDir {
+        dirs 'libs' // para Pixelmon.jar
+    }
+}
+
+dependencies {
+    // Forge runtime
+    minecraft 'net.minecraftforge:forge:1.16.5-36.2.39'
+
+    // Pixelmon API desde libs/Pixelmon.jar
+    compileOnly fg.deobf(files("libs/Pixelmon.jar"))
+
+    // SnakeYAML
+    implementation 'org.yaml:snakeyaml:1.30'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+shadowJar {
+    configurations = [project.configurations.shadow]
+    archiveBaseName.set(rootProject.name + '-Forge')
+    archiveClassifier.set('')
+    archiveVersion.set(project.version)
+    dependsOn reobfJar
+    exclude 'net/minecraft/**'
+    exclude '**/module-info.class'
+}
+
+reobf {
+    shadowJar {}
+}
+
+task versionedRelease(type: Copy) {
+    group = "build"
+    from("$buildDir/libs/${rootProject.name}-Forge-${project.version}.jar")
+    into('release/')
+    include '*.jar'
+}
+
+jar.finalizedBy 'reobfJar'
+build.finalizedBy 'versionedRelease'
